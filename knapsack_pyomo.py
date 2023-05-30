@@ -14,7 +14,7 @@ model.w = Param(model.ITEMS, within=PositiveReals)
 
 model.limit = Param(within=PositiveReals)
 
-model.x = Var(model.ITEMS, within=PositiveReals, bounds=(0, 1))
+model.x = Var(model.ITEMS, within=Binary)
 
 
 def value_rule(model):
@@ -45,3 +45,5 @@ print(instance)
 solver = SolverFactory('cbc')
 res = solver.solve(instance)
 print(value(instance.value))
+x = [instance.x[i].value for i in range(len(instance.x))]
+print(x)
