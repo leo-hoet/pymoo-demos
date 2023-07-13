@@ -50,17 +50,22 @@ class BestCandidateCallback(Callback):
         self.data["best"].append(algorithm.pop.get("F").min())
 
 
-def combine_and_save_scatter(traces: List, output_file='scatterplot.html'):
+def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterplot.html', optimum_value: float = None):
+    if optimum_value:
+        x = traces[0].x
+        y = [optimum_value] * len(x)
+        traces.append(go.Scatter(x=x, y=y, mode='lines', name=f'Optimum'))
+
     fig = go.Figure(data=traces)
     fig.update_layout(title='Scatterplot', xaxis_title='X', yaxis_title='Y')
     pyo.plot(fig, filename=output_file)
 
 
-def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None) -> Scatter:
+def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None, n_gen=50) -> Scatter:
     res = minimize(
         problem=problem,
         algorithm=algol,
-        termination=('n_gen', 500),
+        termination=('n_gen', n_gen),
         verbose=False,
         callback=BestCandidateCallback(),
         selection=selection,
