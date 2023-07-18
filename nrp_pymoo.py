@@ -40,7 +40,6 @@ class NRP(ElementwiseProblem):
             n_var=n_var,
             n_obj=1,
             n_ieq_constr=len(self.pre_req_set) + len(self.interest_set) + cost_constraints,
-            # extra one for max const constraint
             xl=xl,
             xu=xu,
         )
@@ -69,7 +68,7 @@ class NRP(ElementwiseProblem):
         xs, _ = self._get_xs_ys(x)
         result = []
         for (i, j) in self.pre_req_set:
-            pre_req_not_violated = x[i] + x[j]
+            pre_req_not_violated = -x[i] + x[j]
             result.append(pre_req_not_violated)
         return result
 
@@ -99,7 +98,7 @@ class NRP(ElementwiseProblem):
 
 def run_get_data():
     # Writes a csv with
-    # num_run, iteration, fo
+    # num_run, iteration, fo, time, is_feasible
 
     raise NotImplementedError()
 
@@ -114,18 +113,11 @@ def main():
         pop_size=100
     )
 
-    res = minimize(
-        problem=nrp,
-        algorithm=algol,
-        termination=('n_gen', 300),
-        verbose=False,
-        selection=RandomSelection(),
-        crossover=SBX(),
-        callback=BestCandidateCallback(),
-    )
-
     selections = [RandomSelection(), TournamentSelection(pressure=2, func_comp=binary_tournament)]
     crossovers = [SBX(), UniformCrossover(prob=1.0), TwoPointCrossover()]
+
+    selections = selections[:1]
+    crossovers = crossovers[:1]
 
     traces = []
     for selection in selections:
