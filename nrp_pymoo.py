@@ -76,7 +76,7 @@ class NRP(ElementwiseProblem):
         xs, ys = self._get_xs_ys(x)
         result = []
         for i, k in self.interest_set:
-            stakeholder_i_interest_is_satisfied = -ys[i] + xs[k]
+            stakeholder_i_interest_is_satisfied = ys[i] - xs[k]
             result.append(stakeholder_i_interest_is_satisfied)
         return result
 
@@ -116,8 +116,8 @@ def main():
     selections = [RandomSelection(), TournamentSelection(pressure=2, func_comp=binary_tournament)]
     crossovers = [SBX(), UniformCrossover(prob=1.0), TwoPointCrossover()]
 
-    selections = selections[:1]
-    crossovers = crossovers[:1]
+    selections = selections[:2]
+    crossovers = crossovers[:2]
 
     traces = []
     for selection in selections:
@@ -127,7 +127,7 @@ def main():
                 algol=algol,
                 selection=selection,
                 crossover=crossover,
-                n_gen=50,
+                n_gen=2000,
             )
             traces.append(trace)
     combine_and_save_scatter(traces, optimum_value=params.fo_optimum)

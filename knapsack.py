@@ -45,9 +45,21 @@ class BestCandidateCallback(Callback):
     def __init__(self) -> None:
         super().__init__()
         self.data["best"] = []
+        self.data["best2"] = []
+        self.data["feasibility"] = []
 
     def notify(self, algorithm):
+        fitnesses: List[float] = algorithm.pop.get("F")
+        constraints: List[List[float]] = algorithm.pop.get("G")
+        fitnesses_constraints = zip(fitnesses, constraints)
+
+        best_fitness, constraint = min(fitnesses_constraints, key=lambda x: x[0])
+
+        is_feasible = all([i <= 0 for i in constraint])
+
         self.data["best"].append(algorithm.pop.get("F").min())
+        self.data["best2"].append(best_fitness)
+        self.data["feasibility"].append(is_feasible)
 
 
 def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterplot.html', optimum_value: float = None):
@@ -72,9 +84,22 @@ def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, c
         crossover=crossover
     )
     y_values: List[float] = res.algorithm.callback.data['best']
+    y_feasibilities: List[bool] = res.algorithm.callback.data['feasibility']
     x_values = [i for i in range(len(y_values))]
+    marker_types = {
+        True: 'circle',
+        False: 'cross'
+    }
 
-    return go.Scatter(x=x_values, y=y_values, mode='lines+markers', name=f'{selection.name}-{crossover.name}')
+    return go.Scatter(
+        x=x_values,
+        y=y_values,
+        mode='lines+markers',
+        name=f'{selection.name}-{crossover.name}',
+        marker={
+            'symbol': [marker_types[i] for i in y_feasibilities],
+        }
+    )
 
 
 def binary_tournament(pop, P, _, **kwargs):
