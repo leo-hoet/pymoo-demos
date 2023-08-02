@@ -34,9 +34,12 @@ def _assert_parameters_are_consistent(params: NRPParams):
 
 
 def params_750c_3250r() -> NRPParams:
+    optimums_at_max_cost = [
+        (1517.0, 500),
+    ]
     params = NRPParams(
-        fo_optimum=1000,
-        max_allowed_cost=100000,
+        fo_optimum=1517,
+        max_allowed_cost=500,
         len_req=3250,
         len_customers=750,
         profits_per_customer=[
