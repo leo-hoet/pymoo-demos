@@ -96,7 +96,7 @@ def main():
     figs = []
     j = 0
     for selection in script_params.selections:
-        for crossover in script_params.crossovers[:1]:
+        for crossover in script_params.crossovers:
             data = []
             for i in range(script_params.n_iters):
                 t0 = time.perf_counter()

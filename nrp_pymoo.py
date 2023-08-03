@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 from pymoo.algorithms.soo.nonconvex import ga
@@ -10,10 +10,9 @@ from pymoo.operators.mutation.bitflip import BitflipMutation
 from pymoo.operators.sampling.rnd import BinaryRandomSampling
 from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.operators.selection.tournament import TournamentSelection
-from pymoo.optimize import minimize
 
-from knapsack import BestCandidateCallback, run_and_return_scatter, combine_and_save_scatter, binary_tournament
-from model_params import NRPParams, params_100r_140c
+from knapsack import run_and_return_scatter, combine_and_save_scatter, binary_tournament
+from model_params import NRPParams, params_750c_3250r, params_100r_140c
 
 RequirementIdx = int
 StakeholderIdx = int
@@ -45,6 +44,7 @@ class NRP(ElementwiseProblem):
         )
 
     def _get_xs_ys(self, x):
+        # no es necesario tener las x e y. Se puede determinar una a partir de la otra
         xs = x[:self.len_req]  # 1 if req is implemented
         ys = x[self.len_req:(self.len_req + self.len_customers)]  # 1 if customer is satisfied
         return xs, ys
@@ -108,9 +108,6 @@ def main():
 
     selections = [RandomSelection(), TournamentSelection(pressure=2, func_comp=binary_tournament)]
     crossovers = [SBX(), UniformCrossover(prob=1.0), TwoPointCrossover()]
-
-    selections = selections[:2]
-    crossovers = crossovers[:2]
 
     traces = []
     for selection in selections:

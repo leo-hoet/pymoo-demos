@@ -45,7 +45,6 @@ class BestCandidateCallback(Callback):
     def __init__(self) -> None:
         super().__init__()
         self.data["best"] = []
-        self.data["best2"] = []
         self.data["feasibility"] = []
 
     def notify(self, algorithm):
@@ -58,7 +57,6 @@ class BestCandidateCallback(Callback):
         is_feasible = all([i <= 0 for i in constraint])
 
         self.data["best"].append(algorithm.pop.get("F").min())
-        self.data["best2"].append(best_fitness)
         self.data["feasibility"].append(is_feasible)
 
 
