@@ -96,13 +96,6 @@ class NRP(ElementwiseProblem):
         out["G"] = g_prereq + g_interes + [g_cost]
 
 
-def run_get_data():
-    # Writes a csv with
-    # num_run, iteration, fo, time, is_feasible
-
-    raise NotImplementedError()
-
-
 def main():
     params = params_100r_140c()
     nrp = NRP(params)
