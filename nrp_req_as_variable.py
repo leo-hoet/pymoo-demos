@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict
+from typing import Dict, List
 
 import numpy as np
 from pymoo.algorithms.soo.nonconvex import ga
@@ -12,14 +12,11 @@ from pymoo.operators.sampling.rnd import BinaryRandomSampling
 from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.operators.selection.tournament import TournamentSelection
 
-from knapsack import run_and_return_scatter, combine_and_save_scatter, binary_tournament
-from model_params import NRPParams, params_100r_140c
-
-RequirementIdx = int
-StakeholderIdx = int
+from knapsack import binary_tournament, run_and_return_scatter, combine_and_save_scatter
+from model_params import NRPParams, StakeholderIdx, RequirementIdx, params_100r_140c
 
 
-class NRP(ElementwiseProblem):
+class NRPReqAsVariable(ElementwiseProblem):
     def __init__(self, params: NRPParams):
         self.len_req = params.len_req
         self.len_customers = params.len_customers
@@ -29,7 +26,11 @@ class NRP(ElementwiseProblem):
         self.interest_set = params.interest_set
         self.max_allowed_cost = params.max_allowed_cost
 
-        n_var = self.len_req + self.len_customers
+        self.interest_map: Dict[StakeholderIdx, List[RequirementIdx]] = defaultdict(list)
+        for (stakeholder_idx, req_idx) in self.interest_set:
+            self.interest_map[stakeholder_idx].append(req_idx)
+
+        n_var = self.len_req
 
         xl = np.zeros(n_var)
         xu = np.ones(n_var)
@@ -44,10 +45,18 @@ class NRP(ElementwiseProblem):
             xu=xu,
         )
 
+    def get_ys_from_xs(self, x) -> List[float]:
+        ys = [0] * self.len_customers
+        for stakeholder_idx, list_req_idx in self.interest_map.items():
+            for idx in list_req_idx:
+                if x[idx] == 0:
+                    break
+                ys[stakeholder_idx] = 1
+        return ys
+
     def _get_xs_ys(self, x):
-        xs = x[:self.len_req]  # 1 if req is implemented
-        ys = x[self.len_req:(self.len_req + self.len_customers)]  # 1 if customer is satisfied
-        return xs, ys
+        ys = self.get_ys_from_xs(x)
+        return x, ys
 
     def _calculate_obj_function(self, x) -> float:
         xs, ys = self._get_xs_ys(x)
@@ -98,7 +107,7 @@ class NRP(ElementwiseProblem):
 
 def main():
     params = params_100r_140c()
-    nrp = NRP(params)
+    nrp = NRPReqAsVariable(params)
     algol = ga.GA(
         sampling=BinaryRandomSampling(),
         mutation=BitflipMutation(),
@@ -120,21 +129,10 @@ def main():
                 algol=algol,
                 selection=selection,
                 crossover=crossover,
-                n_gen=2000,
+                n_gen=500,
             )
     combine_and_save_scatter(traces, optimum_value=params.fo_optimum)
-
-    # bests: List[float] = res.algorithm.callback.data['best']
-    # print("Algorithm used: ", res.algorithm)
-    # print("Time :", res.exec_time)
-    # print("Design space values X: ", res.X)
-    #  print("Objective space values F: ", res.F)
-    # print("Constraint  values G: ", res.G)
-    # print("Aggregated constraint violation CV: ", res.CV)
-    # print("Final population: ", res.pop.get("X"))
 
 
 if __name__ == "__main__":
     main()
-
-# use this to display uncertantly https://plotly.com/python/continuous-error-bars/
