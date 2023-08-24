@@ -46,6 +46,7 @@ class BestCandidateCallback(Callback):
         super().__init__()
         self.data["best"] = []
         self.data["feasibility"] = []
+        self.data["worst"] = []
 
     def notify(self, algorithm):
         fitnesses: List[float] = algorithm.pop.get("F")
@@ -57,6 +58,7 @@ class BestCandidateCallback(Callback):
         is_feasible = all([i <= 0 for i in constraint])
 
         self.data["best"].append(algorithm.pop.get("F").min())
+        self.data["worst"].append(algorithm.pop.get("F").max())
         self.data["feasibility"].append(is_feasible)
 
 
@@ -71,7 +73,8 @@ def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterp
     pyo.plot(fig, filename=output_file)
 
 
-def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None, n_gen=50) -> Scatter:
+def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None, n_gen=50,
+                           pop_dispersion=True) -> List[Scatter]:
     res = minimize(
         problem=problem,
         algorithm=algol,
@@ -82,22 +85,38 @@ def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, c
         crossover=crossover
     )
     y_values: List[float] = res.algorithm.callback.data['best']
+    y_worst: List[float] = res.algorithm.callback.data['worst']
     y_feasibilities: List[bool] = res.algorithm.callback.data['feasibility']
     x_values = [i for i in range(len(y_values))]
     marker_types = {
         True: 'circle',
         False: 'cross'
     }
+    scatters = [
+        go.Scatter(
+            x=x_values,
+            y=y_values,
+            mode='lines+markers',
+            name=f'{selection.name}-{crossover.name}',
+            marker={
+                'symbol': [marker_types[i] for i in y_feasibilities],
+            }
+        )
+    ]
+    if pop_dispersion:
+        scatters.append(
+            go.Scatter(
+                x=x_values + x_values[::-1],  # x, then x reversed
+                y=np.concatenate((y_worst, y_values[::-1])),  # upper, then lower reversed
+                fill='toself',
+                fillcolor='rgba(0,100,80,0.2)',
+                line=dict(color='rgba(255,255,255,0)'),
+                hoverinfo="skip",
+                showlegend=False
+            )
+        )
 
-    return go.Scatter(
-        x=x_values,
-        y=y_values,
-        mode='lines+markers',
-        name=f'{selection.name}-{crossover.name}',
-        marker={
-            'symbol': [marker_types[i] for i in y_feasibilities],
-        }
-    )
+    return scatters
 
 
 def binary_tournament(pop, P, _, **kwargs):
@@ -143,12 +162,12 @@ def main():
     traces = []
     for selection in selections:
         for crossover in crossovers:
-            traces.append(run_and_return_scatter(
+            traces += run_and_return_scatter(
                 problem,
                 algol,
                 selection=selection,
                 crossover=crossover,
-            ))
+            )
 
     combine_and_save_scatter(traces)
 
