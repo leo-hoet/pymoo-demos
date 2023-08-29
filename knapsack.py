@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 import numpy as np
@@ -47,6 +48,8 @@ class BestCandidateCallback(Callback):
         self.data["best"] = []
         self.data["feasibility"] = []
         self.data["worst"] = []
+        self.data['times'] = []
+        self.t0 = time.perf_counter()
 
     def notify(self, algorithm):
         fitnesses: List[float] = algorithm.pop.get("F")
@@ -60,6 +63,9 @@ class BestCandidateCallback(Callback):
         self.data["best"].append(algorithm.pop.get("F").min())
         self.data["worst"].append(algorithm.pop.get("F").max())
         self.data["feasibility"].append(is_feasible)
+        t1 = time.perf_counter()
+        print(f'el time es {t1-self.t0=}')
+        self.data['times'].append(t1 - self.t0)
 
 
 def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterplot.html', optimum_value: float = None):
@@ -87,7 +93,8 @@ def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, c
     y_values: List[float] = res.algorithm.callback.data['best']
     y_worst: List[float] = res.algorithm.callback.data['worst']
     y_feasibilities: List[bool] = res.algorithm.callback.data['feasibility']
-    x_values = [i for i in range(len(y_values))]
+    x_values: List[float] = res.algorithm.callback.data['times']
+    # x_values = [i for i in range(len(y_values))]
     marker_types = {
         True: 'circle',
         False: 'cross'
