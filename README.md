@@ -2,6 +2,9 @@ This a todo document and most parts are in draft state. Do not take the informat
 
 ## Benchmark comparison
 
+All the benchmarks are done using [hyperfine](https://lib.rs/crates/hyperfine) with the parameters returned
+by `params_100r_140c()`
+
 ### One to one translation from MILP NRP
 
 First working version was a one to one translation to see if pymoo works well.
@@ -17,6 +20,13 @@ feasible solution.
 
 With this change, we are able to run 500 generations in about ~32 sec. Finding the first
 feasible solution at ~23sec.
+
+```commandline
+$ hyperfine --runs 5 'python nrp_req_as_variable.py'
+Benchmark 1: python nrp_req_as_variable.py
+  Time (mean ± σ):     32.498 s ±  0.886 s    [User: 33.038 s, System: 2.751 s]
+  Range (min … max):   31.786 s … 33.950 s    5 runs
+```
 
 ### Vectorizing the hot path
 
@@ -34,4 +44,9 @@ feasible solution
 There is still a lot to do in order to improve performance. Remove `apply_along_axis` calls and replace them
 with some linear algebra should be a lot faster
 
-
+```commandline
+$ hyperfine --runs 5 'python nrp_req_as_variable_vectorized.py'
+Benchmark 1: python nrp_req_as_variable_vectorized.py
+  Time (mean ± σ):     11.261 s ±  0.367 s    [User: 11.828 s, System: 2.556 s]
+  Range (min … max):   10.626 s … 11.544 s    5 runs
+```
