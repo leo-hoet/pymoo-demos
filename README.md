@@ -27,8 +27,11 @@ Pymoo provides the ability to define a vectorized problem, where `_evaluate` is 
 and
 len_vars columns. This allows to take advantage of numpy functions.
 
-This iteration relies heavly on `apply_along_axis` and the function defined in the previous iteration. This change,
+This iteration relies heavily on `apply_along_axis` and the function defined in the previous iteration. This change,
 improved performance in about 33.3%. For 500 generations it took ~10sec and only ~6sec to find the first
 feasible solution
+
+There is still a lot to do in order to improve performance. Remove `apply_along_axis` calls and replace them
+with some linear algebra should be a lot faster
 
 
