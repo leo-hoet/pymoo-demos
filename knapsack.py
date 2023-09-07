@@ -64,7 +64,6 @@ class BestCandidateCallback(Callback):
         self.data["worst"].append(algorithm.pop.get("F").max())
         self.data["feasibility"].append(is_feasible)
         t1 = time.perf_counter()
-        print(f'el time es {t1-self.t0=}')
         self.data['times'].append(t1 - self.t0)
 
 
