@@ -2,7 +2,8 @@ This a todo document and most parts are in draft state. Do not take the informat
 
 ## Benchmark comparison
 
-All the benchmarks are done using [hyperfine](https://lib.rs/crates/hyperfine) with the parameters returned
+All the benchmarks are done using [hyperfine](https://lib.rs/crates/hyperfine)
+and [kernprof](https://github.com/pyutils/line_profiler) with the parameters returned
 by `params_100r_140c()`
 
 ### One to one translation from MILP NRP
