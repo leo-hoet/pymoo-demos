@@ -38,7 +38,7 @@ def params_750c_3250r() -> NRPParams:
         (1517, 500),
     ]
     params = NRPParams(
-        fo_optimum=1517,
+        fo_optimum=-1517,
         max_allowed_cost=500,
         len_req=3250,
         len_customers=750,

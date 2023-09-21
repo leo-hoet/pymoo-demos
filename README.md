@@ -4,14 +4,14 @@ This a todo document and most parts are in draft state. Do not take the informat
 
 All the benchmarks are done using [hyperfine](https://lib.rs/crates/hyperfine)
 and [kernprof](https://github.com/pyutils/line_profiler) with the parameters returned
-by `params_100r_140c()`
+by `params_100r_140c()` and running for 500 generations
 
 ### One to one translation from MILP NRP
 
 First working version was a one to one translation to see if pymoo works well.
-This version could find a feasible result but it was pretty slow to run. It almost did not use numpy and the hot path
-was
-not vectorized
+This version could find a feasible result, but it was pretty slow to run. It almost did not use numpy and the hot path
+was not vectorized. It took ~33 sec to run 500 generations and in that time it could not find a feasible resoult.
+The first feasible result is found at ~68 sec runtime
 
 ### Only requirements as decisions variables
 

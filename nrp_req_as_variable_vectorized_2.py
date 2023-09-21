@@ -15,7 +15,7 @@ from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.operators.selection.tournament import TournamentSelection
 
 from knapsack import binary_tournament, run_and_return_scatter, combine_and_save_scatter
-from model_params import NRPParams, StakeholderIdx, RequirementIdx, params_100r_140c
+from model_params import NRPParams, StakeholderIdx, RequirementIdx, params_100r_140c, params_750c_3250r
 
 Vector1xLenReq = NDArray
 Vector1xLenStakeholder = NDArray
@@ -132,7 +132,7 @@ class NRPReqAsVariable(Problem):
 
 
 def main():
-    params = params_100r_140c()
+    params = params_750c_3250r()
     nrp = NRPReqAsVariable(params)
     algol = ga.GA(
         sampling=BinaryRandomSampling(),
@@ -144,8 +144,8 @@ def main():
     selections = [RandomSelection(), TournamentSelection(pressure=2, func_comp=binary_tournament)]
     crossovers = [SBX(), UniformCrossover(prob=1.0), TwoPointCrossover()]
 
-    selections = selections[:1]
-    crossovers = crossovers[:1]
+    selections = selections[1:2]
+    crossovers = crossovers[1:2]
 
     traces = []
     for selection in selections:
@@ -155,9 +155,9 @@ def main():
                 algol=algol,
                 selection=selection,
                 crossover=crossover,
-                n_gen=500,
+                n_gen=300,
             )
-    # combine_and_save_scatter(traces, optimum_value=params.fo_optimum)
+    combine_and_save_scatter(traces, optimum_value=params.fo_optimum)
 
 
 if __name__ == "__main__":
