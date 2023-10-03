@@ -19,6 +19,7 @@ from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.operators.selection.tournament import TournamentSelection
 from pymoo.optimize import minimize
 from pymoo.problems.single.knapsack import Knapsack
+from pymoo.termination import get_termination
 
 ITEMS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
          30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
@@ -78,12 +79,19 @@ def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterp
     pyo.plot(fig, filename=output_file)
 
 
-def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None, n_gen=50,
-                           pop_dispersion=True) -> List[Scatter]:
+def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, crossover=None, n_gen: int = None,
+                           max_time: int = None, pop_dispersion=True) -> List[Scatter]:
+    if n_gen:
+        termination = ('n_gen', n_gen)
+    elif max_time and max_time <= 59:
+        termination = get_termination("time", f"00:02:{max_time}")
+    else:
+        raise RuntimeError('No termination criterion provided')
+
     res = minimize(
         problem=problem,
         algorithm=algol,
-        termination=('n_gen', n_gen),
+        termination=termination,
         verbose=False,
         callback=BestCandidateCallback(),
         selection=selection,

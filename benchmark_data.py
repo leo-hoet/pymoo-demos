@@ -1,3 +1,5 @@
+import datetime
+import logging
 import time
 import numpy as np
 import plotly.offline as pyo
@@ -8,7 +10,7 @@ from typing import List, Tuple
 
 from numpy import ndarray
 from pymoo.algorithms.soo.nonconvex import ga
-from pymoo.operators.crossover.pntx import TwoPointCrossover
+from pymoo.operators.crossover.pntx import TwoPointCrossover, PointCrossover
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.bitflip import BitflipMutation
 from pymoo.operators.sampling.rnd import BinaryRandomSampling
@@ -16,17 +18,17 @@ from pymoo.operators.selection.rnd import RandomSelection
 from pymoo.optimize import minimize
 
 from knapsack import BestCandidateCallback, combine_and_save_scatter
-from model_params import params_100r_140c
+from model_params import params_100r_140c, params_750c_3250r
 from nrp_pymoo import NRP
 
 
 @dataclass
 class ScriptParameters:
     pop_size: int = 100
-    termination_n_gen = 2000
+    termination_n_gen = 200
     selections = [RandomSelection()]
-    crossovers = [SBX(), TwoPointCrossover()]
-    n_iters = 1
+    crossovers = [PointCrossover(n_points=4), SBX()]
+    n_iters = 5
 
 
 @dataclass
@@ -84,7 +86,7 @@ def plot_run_data_with_error_bars(data: List[RunData], graph_name=None, color: G
 
 def main():
     script_params = ScriptParameters()
-    params = params_100r_140c()
+    params = params_750c_3250r()
     nrp = NRP(params)
     algol = ga.GA(
         sampling=BinaryRandomSampling(),
@@ -99,6 +101,9 @@ def main():
         for crossover in script_params.crossovers:
             data = []
             for i in range(script_params.n_iters):
+                print(
+                    f'{datetime.datetime.now()} Running iteration {selection.name} {crossover.name} {i} '
+                    f'of {script_params.n_iters}')
                 t0 = time.perf_counter()
                 res = minimize(
                     problem=nrp,

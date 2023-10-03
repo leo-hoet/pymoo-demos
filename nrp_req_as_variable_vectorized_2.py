@@ -1,3 +1,4 @@
+import datetime
 from collections import defaultdict
 from typing import Dict, List
 
@@ -6,7 +7,7 @@ from line_profiler import profile
 from numpy._typing import ArrayLike, NDArray
 from pymoo.algorithms.soo.nonconvex import ga
 from pymoo.core.problem import Problem
-from pymoo.operators.crossover.pntx import TwoPointCrossover
+from pymoo.operators.crossover.pntx import TwoPointCrossover, SinglePointCrossover, PointCrossover
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.crossover.ux import UniformCrossover
 from pymoo.operators.mutation.bitflip import BitflipMutation
@@ -142,20 +143,25 @@ def main():
     )
 
     selections = [RandomSelection(), TournamentSelection(pressure=2, func_comp=binary_tournament)]
-    crossovers = [SBX(), UniformCrossover(prob=1.0), TwoPointCrossover()]
+    crossovers = [
+        SBX(), UniformCrossover(prob=1.0), SinglePointCrossover(), TwoPointCrossover(),
+        PointCrossover(n_points=4)
+    ]
 
     selections = selections[1:2]
-    crossovers = crossovers[1:2]
+    # crossovers = crossovers[1:2]
 
     traces = []
     for selection in selections:
         for crossover in crossovers:
+            print(f'{datetime.datetime.now()} Running model with {selection.name} {crossover.name}')
             traces += run_and_return_scatter(
                 problem=nrp,
                 algol=algol,
                 selection=selection,
                 crossover=crossover,
-                n_gen=300,
+                pop_dispersion=False,
+                max_time=1
             )
     combine_and_save_scatter(traces, optimum_value=params.fo_optimum)
 
