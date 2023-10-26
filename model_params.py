@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Tuple
+import graphlib
 
 RequirementIdx = int
 StakeholderIdx = int
@@ -21,8 +22,21 @@ class NRPParams:
     fo_optimum: float
 
 
-def _assert_no_circular_ref():
-    pass
+def _assert_no_circular_ref(param_set: List[Tuple[int, int]]):
+    graph = {}
+
+    for (i, j) in param_set:
+        if i not in graph:
+            graph[i] = {j}
+            continue
+        graph[i].add(j)
+
+        # Try to sort the graph by topological order
+    # https://stackoverflow.com/questions/4168/graph-serialization/4577#4577
+    ts = graphlib.TopologicalSorter(graph)
+
+    # If no exception is raised, the graph has no cycles
+    ts.prepare()
 
 
 def _assert_parameters_are_consistent(params: NRPParams):
@@ -35,6 +49,9 @@ def _assert_parameters_are_consistent(params: NRPParams):
     for req_i, req_j in params.pre_req_set:
         assert req_i < params.len_req, f"Len req is {params.len_req} and found req index {req_i} in pre_req_set"
         assert req_j < params.len_req, f"Len req is {params.len_req} and found req index {req_i} in pre_req_set"
+
+    _assert_no_circular_ref(params.interest_set)
+    _assert_no_circular_ref(params.pre_req_set)
 
 
 def params_750c_3250r() -> NRPParams:
