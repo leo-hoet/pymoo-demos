@@ -34,6 +34,7 @@ class ScriptParameters:
 @dataclass
 class RunData:
     y_best: List[float]
+    y_worst: List[float]
     y_feasibility: List[bool]
     time_sec: float
 

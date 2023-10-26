@@ -4,7 +4,7 @@ from typing import Dict, List
 
 import numpy as np
 from line_profiler import profile
-from numpy._typing import ArrayLike, NDArray
+from numpy._typing import NDArray
 from pymoo.algorithms.soo.nonconvex import ga
 from pymoo.core.problem import Problem
 from pymoo.operators.crossover.pntx import TwoPointCrossover, SinglePointCrossover, PointCrossover
@@ -47,7 +47,7 @@ class NRPReqAsVariable(Problem):
         super().__init__(
             n_var=n_var,
             n_obj=1,
-            n_ieq_constr=len(self.pre_req_set) + len(self.interest_set) + cost_constraints,
+            n_ieq_constr=len(self.pre_req_set) + cost_constraints,
             xl=xl,
             xu=xu,
         )
@@ -75,8 +75,8 @@ class NRPReqAsVariable(Problem):
             f1 += customer_is_satisfied * profit_customer_satisfied
 
         # calculate costs
-        for req_is_implemented, implementation_cost in zip(xs, self.cost):
-            f1 -= req_is_implemented * implementation_cost
+        # for req_is_implemented, implementation_cost in zip(xs, self.cost):
+        # f1 -= req_is_implemented * implementation_cost
         f1 = (-1) * f1  # pymoo only accepts minimization O.F. So, multiply by -1
         return f1
 
@@ -125,11 +125,11 @@ class NRPReqAsVariable(Problem):
         f1 = self._calculate_obj_function_over_matrix(x)
 
         g_prereq = self._prereq_constraint_over_matrix(x)
-        g_interes = self._interest_constraint_over_matrix(x)
+        # g_interes = self._interest_constraint_over_matrix(x)
         g_cost = self._cost_constraint_over_matrix(x)
 
         out["F"] = np.column_stack((f1,))
-        out["G"] = np.column_stack((g_prereq, g_interes, g_cost))
+        out["G"] = np.column_stack((g_prereq, g_cost))
 
 
 def main():
@@ -148,8 +148,8 @@ def main():
         PointCrossover(n_points=4)
     ]
 
-    selections = selections[1:2]
-    # crossovers = crossovers[1:2]
+    selections = selections[:1]
+    crossovers = crossovers[:1]
 
     traces = []
     for selection in selections:
@@ -160,8 +160,8 @@ def main():
                 algol=algol,
                 selection=selection,
                 crossover=crossover,
-                pop_dispersion=False,
-                max_time=1
+                pop_dispersion=True,
+                max_time=50
             )
     combine_and_save_scatter(traces, optimum_value=params.fo_optimum)
 

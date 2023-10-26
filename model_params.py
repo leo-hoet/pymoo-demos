@@ -21,6 +21,10 @@ class NRPParams:
     fo_optimum: float
 
 
+def _assert_no_circular_ref():
+    pass
+
+
 def _assert_parameters_are_consistent(params: NRPParams):
     assert params.len_req == len(params.cost_per_req)
     assert params.len_customers == len(params.profits_per_customer)

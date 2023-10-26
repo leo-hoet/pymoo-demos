@@ -84,7 +84,7 @@ def run_and_return_scatter(problem: Problem, algol: Algorithm, selection=None, c
     if n_gen:
         termination = ('n_gen', n_gen)
     elif max_time and max_time <= 59:
-        termination = get_termination("time", f"00:02:{max_time}")
+        termination = get_termination("time", f"00:00:{max_time}")
     else:
         raise RuntimeError('No termination criterion provided')
 
