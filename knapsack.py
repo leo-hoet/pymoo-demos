@@ -51,6 +51,7 @@ class BestCandidateCallback(Callback):
         self.data["worst"] = []
         self.data['times'] = []
         self.t0 = time.perf_counter()
+        self.i = 0
 
     def notify(self, algorithm):
         fitnesses: List[float] = algorithm.pop.get("F")
@@ -66,6 +67,9 @@ class BestCandidateCallback(Callback):
         self.data["feasibility"].append(is_feasible)
         t1 = time.perf_counter()
         self.data['times'].append(t1 - self.t0)
+        self.i += 1
+        if self.i % 20 == 0:
+            print(f'Iter: {self.i}, time: {t1 - self.t0}')
 
 
 def combine_and_save_scatter(traces: List[Scatter], output_file: str = 'scatterplot.html', optimum_value: float = None):
