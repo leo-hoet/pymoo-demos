@@ -48,7 +48,7 @@ class NRPReqAsVariable(Problem):
         super().__init__(
             n_var=n_var,
             n_obj=1,
-            n_ieq_constr=len(self.pre_req_set) + cost_constraints,
+            n_ieq_constr=len(self.interest_set) + cost_constraints,
             xl=xl,
             xu=xu,
         )
@@ -125,12 +125,12 @@ class NRPReqAsVariable(Problem):
         x = x.astype(int)
         f1 = self._calculate_obj_function_over_matrix(x)
 
-        g_prereq = self._prereq_constraint_over_matrix(x)
-        # g_interes = self._interest_constraint_over_matrix(x)
+        # g_prereq = self._prereq_constraint_over_matrix(x)
+        g_interes = self._interest_constraint_over_matrix(x)
         g_cost = self._cost_constraint_over_matrix(x)
 
         out["F"] = np.column_stack((f1,))
-        out["G"] = np.column_stack((g_prereq, g_cost))
+        out["G"] = np.column_stack((g_interes, g_cost))
 
 
 def main():

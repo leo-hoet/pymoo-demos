@@ -82,3 +82,48 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
    139       500      16932.6     33.9      0.1          out["G"] = np.column_stack((g_prereq, g_interes, g_cost))
 
 ```
+
+### Using only implemented requirements (x) as decision variables
+
+By caring only for which requirements is implementing, not using the interest constraint and therefore ignoring `y`
+the model reduce it's computational needs and each generation can run faster.
+
+It improves the execution time by 40%.
+
+```commandline
+$ hyperfine --runs 5 'python nrp_req_as_variable_vectorized_2.py' 'python nrp_req_as_variable_vectorized_2_all_constraints.py'
+Benchmark 1: python nrp_req_as_variable_vectorized_2.py
+  Time (mean ± σ):      7.465 s ±  0.226 s    [User: 8.101 s, System: 2.579 s]
+  Range (min … max):    7.273 s …  7.802 s    5 runs
+ 
+Benchmark 2: python nrp_req_as_variable_vectorized_2_all_constraints.py
+  Time (mean ± σ):     10.543 s ±  0.234 s    [User: 11.126 s, System: 2.668 s]
+  Range (min … max):   10.318 s … 10.932 s    5 runs
+ 
+Summary
+  'python nrp_req_as_variable_vectorized_2.py' ran
+    1.41 ± 0.05 times faster than 'python nrp_req_as_variable_vectorized_2_all_constraints.py'
+
+```
+
+### Using only stakeholders' satisfaction as decision variable
+
+Using the same strategy as before, we can try only using the `y` and ignoring the `x`. This improves the result compared
+with the full model but it's slower than the one with only `x`.
+
+It runs 18% slower
+
+```commandline
+$ hyperfine --runs 5 'python nrp_req_as_variable_vectorized_2.py' 'python nrp_satisfaction_as_var.py'
+Benchmark 1: python nrp_req_as_variable_vectorized_2.py
+  Time (mean ± σ):      7.691 s ±  0.157 s    [User: 8.231 s, System: 2.563 s]
+  Range (min … max):    7.486 s …  7.869 s    5 runs
+ 
+Benchmark 2: python nrp_satisfaction_as_var.py
+  Time (mean ± σ):      9.103 s ±  0.297 s    [User: 9.664 s, System: 2.567 s]
+  Range (min … max):    8.800 s …  9.509 s    5 runs
+ 
+Summary
+  'python nrp_req_as_variable_vectorized_2.py' ran
+    1.18 ± 0.05 times faster than 'python nrp_satisfaction_as_var.py'
+```
